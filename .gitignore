@@ -1,0 +1,5 @@
+kazoo/**/*.o
+kazoo/**/*.so
+
+*.tbl
+*.parse_table
