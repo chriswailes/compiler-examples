@@ -126,4 +126,4 @@ loop do
 end
 ```
 
-The driver doesn't do much yet, but in the [next chapter](file.Chapter4.html) we will add support for translating our AST into LLVM intermediate representation.  The full code listing for this chapter can be found in the "`examples/kazoo/chapter 3`" directory.
+The driver doesn't do much yet, but in the [next chapter](https://github.com/chriswailes/compiler-examples/blob/master/kazoo/chapter%204/Chapter4.md) we will add support for translating our AST into LLVM intermediate representation.  The full code listing for this chapter can be found in the "`kazoo/chapter 3`" directory.

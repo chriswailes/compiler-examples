@@ -1,7 +1,7 @@
-# Author:		Chris Wailes <chris.wailes@gmail.com>
-# Project: 	Ruby Language Toolkit
-# Date:		2011/05/09
-# Description:	This file defines a simple AST for the Kazoo language.
+# Author:      Chris Wailes <chris.wailes@gmail.com>
+# Project:     Compiler Examples
+# Date:        2011/05/09
+# Description: This file defines a simple AST for the Kazoo language.
 
 # RLTK Files
 require 'rltk/ast'

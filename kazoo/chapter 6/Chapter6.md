@@ -2,7 +2,7 @@
 
 Welcome to Chapter 5 of the  tutorial.  Chapters 1-4 described the implementation of the simple Kazoo language and included support for generating LLVM IR, followed by optimizations and a JIT compiler.  Unfortunately, as presented, Kazoo is mostly useless: it has no control flow other than call and return.  This means that you can't have conditional branches in the code, significantly limiting its power.  In this episode of "Build That Compiler", we'll extend Kazoo to have an if/then/else expression plus a simple 'for' loop.
 
-The old version of Chapter 6 can be found [here](file.Chapter6-old.html).
+The old version of Chapter 6 can be found [here](https://github.com/chriswailes/compiler-examples/blob/master/kazoo/chapter%206/Chapter6-old.md).
 
 ## If/Then/Else
 
@@ -141,10 +141,10 @@ Next, we must build our merge block:
 
 ```Ruby
 merge_bb = fun.blocks.append('merge', self)
-phi_inst = build(merge_bb) { phi RLTK::CG::DoubleType, {new_then_bb => then_val, new_else_bb => else_val}, 'iftmp' }
+phi_inst = build(merge_bb) { phi RCGTK::DoubleType, {new_then_bb => then_val, new_else_bb => else_val}, 'iftmp' }
 ```
 
-The first line her should be familiar: it adds the "merge" block to the Function object.  The second line uses the {RLTK::CG::Builder#build build} method to position the builder and then execute the provided block.  In this case the block generates a Phi node with type {RLTK::CG::DoubleType}.  The mapping between predecessor blocks and values is provided by the hash, and the result of the Phi node will be stored in a variable named "iftmp".
+The first line her should be familiar: it adds the "merge" block to the Function object.  The second line uses the {RCGTK::Builder#build build} method to position the builder and then execute the provided block.  In this case the block generates a Phi node with type {RCGTK::DoubleType}.  The mapping between predecessor blocks and values is provided by the hash, and the result of the Phi node will be stored in a variable named "iftmp".
 
 Once we have created the then_bb, else_bb, and merge_bb blocks we can emit the conditional branch that will chose between the first two.  Note that creating new blocks does not implicitly affect the builder, so it is still inserting into the else_bb block or wherever translating the *else* expression positioned the contractor.  This is why we needed to save the start_bb.
 
@@ -268,7 +268,7 @@ br loop_cond_bb
 The `loop_cond` basic block will need a Phi node to receive incoming values from the preheader basic block and the loop basic block, so we build the node and then add it to our symbol table.  The old value is kept so that it can be restored later.  This allows loop variables to shadow existing ones.
 
 ```Ruby
-var = build(loop_cond_bb) { phi RLTK::CG::DoubleType, {ph_bb => init_val}, node.var }
+var = build(loop_cond_bb) { phi RCGTK::DoubleType, {ph_bb => init_val}, node.var }
 
 old_var = @st[node.var]
 @st[node.var] = var
@@ -284,7 +284,7 @@ We'll eventually need to insert a branch into this basic block, but that can't h
 
 ```Ruby
 loop_bb0 = fun.blocks.append('loop')
-		
+
 _, loop_bb1 = visit node.body, at: loop_bb0, rcb: true
 ```
 
@@ -319,4 +319,4 @@ The only thing remaining now is to do some cleanup.  We first need to restore th
 ZERO
 ```
 
-With this, we conclude the "Adding Control Flow to Kazoo" chapter of the tutorial.  In this chapter we added two control flow constructs, and used them to motivate a couple of aspects of the LLVM IR that are important for front-end implementors to know.  In the [next chapter](file.Chapter7.html), we will add a couple of additional operators to Kazoo and then use them to do some actual computation.  The full code listing for this chapter can be found in the "`examples/kazoo/chapter 6`" directory.
+With this, we conclude the "Adding Control Flow to Kazoo" chapter of the tutorial.  In this chapter we added two control flow constructs, and used them to motivate a couple of aspects of the LLVM IR that are important for front-end implementors to know.  In the [next chapter](https://github.com/chriswailes/compiler-examples/blob/master/kazoo/chapter%207/Chapter7.md), we will add a couple of additional operators to Kazoo and then use them to do some actual computation.  The full code listing for this chapter can be found in the "`kazoo/chapter 6`" directory.

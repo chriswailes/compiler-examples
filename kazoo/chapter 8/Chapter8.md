@@ -2,7 +2,7 @@
 
 Welcome to Chapter 8 of the tutorial.  In chapters 1 through 6 we've built a very respectable, albeit simple, [functional programming language](http://en.wikipedia.org/wiki/Functional_programming).  In our journey we learned some parsing techniques, how to build and represent an AST, how to build LLVM IR, and how to optimize the resultant code as well as JIT compile it.
 
-(The old version of Chapter 8 can be found [here](file.Chapter8-old.html).)
+(The old version of Chapter 8 can be found [here](https://github.com/chriswailes/compiler-examples/blob/master/kazoo/chapter%208/Chapter8-old.md).)
 
 While Kazoo is interesting as a functional language, the fact that it is functional makes it "too easy" to generate LLVM IR for it.  In particular, a functional language makes it very easy to build LLVM IR directly in SSA form.  Since LLVM requires that the input code be in SSA form, this is a very nice property and it is often unclear to newcomers how to generate code for an imperative language with mutable variables.
 
@@ -196,7 +196,7 @@ on For do |node|
   fun          = ph_bb.parent
   loop_cond_bb = fun.blocks.append('loop_cond')
 
-  loc = alloca RLTK::CG::DoubleType, node.var
+  loc = alloca RCGTK::DoubleType, node.var
   store (visit node.init), loc
 
   old_var       = @st[node.var]
@@ -256,7 +256,7 @@ Instead of adding entries to the symbol table in the prototype visitor we will i
 # and set its value as the return value.
 build(fun.blocks.append('entry')) do
   fun.params.each do |param|
-    @st[param.name] = alloca RLTK::CG::DoubleType, param.name
+    @st[param.name] = alloca RCGTK::DoubleType, param.name
     store param, @st[param.name]
   end
 
@@ -386,7 +386,7 @@ on Assign do
   if @st.has_key?(node.name)
     @st[node.name]
   else
-    @st[node.name] = alloca RLTK::CG::DoubleType, node.name
+    @st[node.name] = alloca RCGTK::DoubleType, node.name
   end
 
   store right, loc
@@ -410,4 +410,4 @@ When run, this example prints "123" and then "4", showing that we did actually m
 
 With this, we completed what we set out to do.  Our nice iterative fib example from the intro compiles and runs just fine.  The mem2reg pass optimizes all of our stack variables into SSA registers, inserting Phi nodes where needed, and our front-end remains simple: no "iterated dominance frontier" computation anywhere in sight.
 
-This concludes the Kazoo tutorial.  We now have a Turing complete language and a JIT compiler for it.  The full code listing for this chapter can be found in the "`examples/kazoo/chapter 8`" directory.
+This concludes the Kazoo tutorial.  We now have a Turing complete language and a JIT compiler for it.  The full code listing for this chapter can be found in the "`kazoo/chapter 8`" directory.

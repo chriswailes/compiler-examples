@@ -4,9 +4,9 @@ In this chapter we will be translating the AST that our parser builds into LLVM 
 
 ## Code Generation Setup
 
-In order to generate LLVM IR, we need to perform some simple setup to get started.  We need to tell LLVM that we will be working on an x86 platform by making a call to the {RLTK::CG::LLVM.init} method.  This will go at the top of our 'kjit.rb' file which will hold most of our code for this chapter.  Here is a quick outline of the file:
+In order to generate LLVM IR, we need to perform some simple setup to get started.  We need to tell LLVM that we will be working on an x86 platform by making a call to the {RCGTK::LLVM.init} method.  This will go at the top of our 'kjit.rb' file which will hold most of our code for this chapter.  Here is a quick outline of the file:
 
-	RLTK::CG::LLVM.init(:X86)
+	RCGTK::LLVM.init(:X86)
 
 	class JIT
 		attr_reader :module
@@ -27,9 +27,9 @@ In order to generate LLVM IR, we need to perform some simple setup to get starte
 		end
 	end
 
-The translate methods will emit IR for that AST node along with all the things it depends on, and they all return an LLVM Value object.  The {RLTK::CG::Value} class represents a "Static Single Assignment (SSA) register" or "SSA value" in LLVM.  The most distinct aspect of SSA values is that their value is computed as the related instruction executes, and it does not get a new value until (and if) the instruction re-executes.  In other words, there is no way to "change" an SSA value.  For more information you can read the Wikipedia article on [Static Single Assignment](http://en.wikipedia.org/wiki/Static_single_assignment_form) - the concepts are really quite natural once you grok them.
+The translate methods will emit IR for that AST node along with all the things it depends on, and they all return an LLVM Value object.  The {RCGTK::Value} class represents a "Static Single Assignment (SSA) register" or "SSA value" in LLVM.  The most distinct aspect of SSA values is that their value is computed as the related instruction executes, and it does not get a new value until (and if) the instruction re-executes.  In other words, there is no way to "change" an SSA value.  For more information you can read the Wikipedia article on [Static Single Assignment](http://en.wikipedia.org/wiki/Static_single_assignment_form) - the concepts are really quite natural once you grok them.
 
-The last bit of setup is to tell the JIT to create a new {RLTK::CG::Module}, {RLTK::CG::Builder}, and symbol table when it is initialized.
+The last bit of setup is to tell the JIT to create a new {RCGTK::Module}, {RCGTK::Builder}, and symbol table when it is initialized.
 
 	def initialize
 		# IR building objects.
@@ -38,7 +38,7 @@ The last bit of setup is to tell the JIT to create a new {RLTK::CG::Module}, {RL
 		@st		= Hash.new
 	end
 
-The {RLTK::CG::Module} class is the LLVM construct that contains all of the functions and global variables in a chunk of code. In many ways, it is the top-level structure that the LLVM IR uses to contain code.  The {RLTK::CG::Builder} object is a helper object that makes it easy to generate LLVM instructions.  Instances of the Builder class keep track of the current place to insert instructions and has methods to create new instructions.  The symbol table (`@st`) keeps track of which values are defined in the current scope and what their LLVM representation is.  In this form of Kazoo, the only things that can be referenced are function parameters.  As such, function parameters will be in this map when generating code for their function body.
+The {RCGTK::Module} class is the LLVM construct that contains all of the functions and global variables in a chunk of code. In many ways, it is the top-level structure that the LLVM IR uses to contain code.  The {RCGTK::Builder} object is a helper object that makes it easy to generate LLVM instructions.  Instances of the Builder class keep track of the current place to insert instructions and has methods to create new instructions.  The symbol table (`@st`) keeps track of which values are defined in the current scope and what their LLVM representation is.  In this form of Kazoo, the only things that can be referenced are function parameters.  As such, function parameters will be in this map when generating code for their function body.
 
 With these basics in place, we can start talking about how to generate code for each expression.
 
@@ -47,9 +47,9 @@ With these basics in place, we can start talking about how to generate code for 
 Generating LLVM code for expression nodes is very straightforward.  First we'll do numeric literals:
 
 	when Number
-		RLTK::CG::Double.new(node.value)
+		RCGTK::Double.new(node.value)
 
-In the LLVM IR, floating point constants are represented with the {RLTK::CG::Float} and {RLTK::CG::Double} classes.  This code simply creates and returns a {RLTK::CG::Double} constant.
+In the LLVM IR, floating point constants are represented with the {RCGTK::Float} and {RCGTK::Double} classes.  This code simply creates and returns a {RCGTK::Double} constant.
 
 References to variables are also quite simple using LLVM.  In the simple version of Kazoo, we assume that the variable has already been emitted somewhere and its value is available.  In practice, the only values that can be in the symbol table are function arguments.  This code simply checks to see that the specified name is in the table (if not, an unknown variable is being referenced) and returns the value for it.  In future chapters we'll add support for loop induction variables in the symbol table, and for local variables.
 
@@ -119,19 +119,19 @@ Code generation for prototypes and functions must handle a number of details, wh
 	if fun = @module.functions[node.name]
 		if fun.blocks.size != 0
 			raise "Redefinition of function #{node.name}."
-			
+
 		elsif fun.params.size != node.arg_names.length
 			raise "Redefinition of function #{node.name} with different number of arguments."
 		end
 	else
-		fun = @module.functions.add(node.name, RLTK::CG::DoubleType, Array.new(node.arg_names.length, RLTK::CG::DoubleType))
+		fun = @module.functions.add(node.name, RCGTK::DoubleType, Array.new(node.arg_names.length, RCGTK::DoubleType))
 	end
 
 The first thing this code does is check to see if a function has already been declared with the specified name.  If such a function has been seen before it then checks to make sure it has the same argument list and an zero-length body.  If this function name has not been seen before a new function is created.  The `Array.new(...)` call produces an array that tells LLVM the type of each of the functions arguments.
 
 This code allows function redefinition in two cases: first, we want to allow 'extern'ing a function more than once, as long as the prototypes for the externs match (since all arguments have the same type, we just have to check that the number of arguments match).  Second, we want to allow 'extern'ing a function and then defining a body for it. This is useful when defining mutually recursive functions.
 
-The last bit of code for prototypes loops over all of the arguments in the function, setting the name of the LLVM Argument objects to match, and registering the arguments in the symbol table for future use by the `translate_expression` method.  Once this is set up, it returns the {RLTK::CG::Function Function} object to the caller.  Note that we don't check for conflicting argument names here (e.g. "extern foo(a, b, a)"). Doing so would be very straight-forward with the mechanics we have already used above.
+The last bit of code for prototypes loops over all of the arguments in the function, setting the name of the LLVM Argument objects to match, and registering the arguments in the symbol table for future use by the `translate_expression` method.  Once this is set up, it returns the {RCGTK::Function Function} object to the caller.  Note that we don't check for conflicting argument names here (e.g. "extern foo(a, b, a)"). Doing so would be very straight-forward with the mechanics we have already used above.
 
 	# Name each of the function paramaters.
 	returning(fun) do
@@ -157,7 +157,7 @@ Once the insertion point is set up, we call the `translate_expression` method fo
 	fun.blocks.append('entry', nil, @builder, self) do |jit|
 		ret jit.translate_expression(node.body)
 	end
-	
+
 	# Verify the function and return it.
 	returning(fun) { fun.verify }
 
@@ -217,4 +217,4 @@ Here is how you declare an external function and then call it:
 
 When you quit the current demo, it dumps out the IR for the entire module generated.  Here you can see the big picture with all the functions referencing each other.
 
-This wraps up the third chapter of the Kazoo tutorial.  In the [next chapter](file.Chapter5.html) we'll describe how to add JIT compilation and optimization support to this so we can actually start running code!  The full code listing for this chapter can be found in the "`examples/kazoo/chapter 4`" directory.
+This wraps up the third chapter of the Kazoo tutorial.  In the [next chapter](https://github.com/chriswailes/compiler-examples/blob/master/kazoo/chapter%205/Chapter5-old.md) we'll describe how to add JIT compilation and optimization support to this so we can actually start running code!  The full code listing for this chapter can be found in the "`kazoo/chapter 4`" directory.

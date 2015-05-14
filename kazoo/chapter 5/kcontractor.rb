@@ -1,31 +1,31 @@
-# Author:		Chris Wailes <chris.wailes@gmail.com>
-# Project: 	Ruby Language Toolkit
-# Date:		2012/12/23
-# Description:	This file sets up a contractor and JITing execution engine for
-#			Kazoo.
+# Author:      Chris Wailes <chris.wailes@gmail.com>
+# Project:     Compiler Examples
+# Date:        2012/12/23
+# Description: This file sets up a contractor and JITing execution engine for
+#              Kazoo.
 
 # RLTK Files
-require 'rltk/cg/llvm'
-require 'rltk/cg/module'
-require 'rltk/cg/execution_engine'
-require 'rltk/cg/contractor'
+require 'rcgtk/llvm'
+require 'rcgtk/module'
+require 'rcgtk/execution_engine'
+require 'rcgtk/contractor'
 
 # Inform LLVM that we will be targeting an x86 architecture.
-RLTK::CG::LLVM.init(:X86)
+RCGTK::LLVM.init(:X86)
 
 module Kazoo
-	class Contractor < RLTK::CG::Contractor
+	class Contractor < RCGTK::Contractor
 		attr_reader :module
 
 		def initialize
 			super
 
 			# IR building objects.
-			@module = RLTK::CG::Module.new('Kazoo JIT')
+			@module = RCGTK::Module.new('Kazoo JIT')
 			@st     = Hash.new
 
 			# Execution Engine
-			@engine = RLTK::CG::JITCompiler.new(@module)
+			@engine = RCGTK::JITCompiler.new(@module)
 
 			# Add passes to the Function Pass Manager.
 			@module.fpm.add(:InstCombine, :Reassociate, :GVN, :CFGSimplify)
@@ -58,7 +58,7 @@ module Kazoo
 			when Sub then fsub(left, right, 'subtmp')
 			when Mul then fmul(left, right, 'multmp')
 			when Div then fdiv(left, right, 'divtmp')
-			when LT  then ui2fp(fcmp(:ult, left, right, 'cmptmp'), RLTK::CG::DoubleType, 'booltmp')
+			when LT  then ui2fp(fcmp(:ult, left, right, 'cmptmp'), RCGTK::DoubleType, 'booltmp')
 			end
 		end
 
@@ -86,7 +86,7 @@ module Kazoo
 		end
 
 		on Number do |node|
-			RLTK::CG::Double.new(node.value)
+			RCGTK::Double.new(node.value)
 		end
 
 		on Function do |node|
@@ -113,7 +113,7 @@ module Kazoo
 					raise "Redefinition of function #{node.name} with different number of arguments."
 				end
 			else
-				fun = @module.functions.add(node.name, RLTK::CG::DoubleType, Array.new(node.arg_names.length, RLTK::CG::DoubleType))
+				fun = @module.functions.add(node.name, RCGTK::DoubleType, Array.new(node.arg_names.length, RCGTK::DoubleType))
 			end
 
 			# Name each of the function paramaters.

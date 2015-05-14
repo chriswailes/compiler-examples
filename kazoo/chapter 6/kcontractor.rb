@@ -1,35 +1,35 @@
-# Author:		Chris Wailes <chris.wailes@gmail.com>
-# Project: 	Ruby Language Toolkit
-# Date:		2012/12/23
-# Description:	This file sets up a contractor and JITing execution engine for
-#			Kazoo.
+# Author:      Chris Wailes <chris.wailes@gmail.com>
+# Project:     Compiler Examples
+# Date:        2012/12/23
+# Description: This file sets up a contractor and JITing execution engine for
+#              Kazoo.
 
 # RLTK Files
-require 'rltk/cg/llvm'
-require 'rltk/cg/module'
-require 'rltk/cg/execution_engine'
-require 'rltk/cg/value'
-require 'rltk/cg/contractor'
+require 'rcgtk/llvm'
+require 'rcgtk/module'
+require 'rcgtk/execution_engine'
+require 'rcgtk/value'
+require 'rcgtk/contractor'
 
 # Inform LLVM that we will be targeting an x86 architecture.
-RLTK::CG::LLVM.init(:X86)
+RCGTK::LLVM.init(:X86)
 
 module Kazoo
 
-	ZERO = RLTK::CG::Double.new(0.0)
+	ZERO = RCGTK::Double.new(0.0)
 
-	class Contractor < RLTK::CG::Contractor
+	class Contractor < RCGTK::Contractor
 		attr_reader :module
 
 		def initialize
 			super
 
 			# IR building objects.
-			@module = RLTK::CG::Module.new('Kazoo JIT')
+			@module = RCGTK::Module.new('Kazoo JIT')
 			@st     = Hash.new
 
 			# Execution Engine
-			@engine = RLTK::CG::JITCompiler.new(@module)
+			@engine = RCGTK::JITCompiler.new(@module)
 
 			# Add passes to the Function Pass Manager.
 			@module.fpm.add(:InstCombine, :Reassociate, :GVN, :CFGSimplify)
@@ -62,7 +62,7 @@ module Kazoo
 			when Sub then fsub(left, right, 'subtmp')
 			when Mul then fmul(left, right, 'multmp')
 			when Div then fdiv(left, right, 'divtmp')
-			when LT  then ui2fp(fcmp(:ult, left, right, 'cmptmp'), RLTK::CG::DoubleType, 'booltmp')
+			when LT  then ui2fp(fcmp(:ult, left, right, 'cmptmp'), RCGTK::DoubleType, 'booltmp')
 			end
 		end
 
@@ -90,23 +90,23 @@ module Kazoo
 		end
 
 		on Number do |node|
-			RLTK::CG::Double.new(node.value)
+			RCGTK::Double.new(node.value)
 		end
 
 		on If do |node|
 			cond_val = fcmp :one, (visit node.cond), ZERO, 'ifcond'
 
-			start_bb	= current_block
-			fun		= start_bb.parent
+			start_bb = current_block
+			fun      = start_bb.parent
 
-			then_bb				= fun.blocks.append('then')
-			then_val, new_then_bb	= visit node.then, at: then_bb, rcb: true
+			then_bb               = fun.blocks.append('then')
+			then_val, new_then_bb = visit node.then, at: then_bb, rcb: true
 
-			else_bb				= fun.blocks.append('else')
-			else_val, new_else_bb	= visit node.else, at: else_bb, rcb: true
+			else_bb               = fun.blocks.append('else')
+			else_val, new_else_bb = visit node.else, at: else_bb, rcb: true
 
 			merge_bb = fun.blocks.append('merge', self)
-			phi_inst = build(merge_bb) { phi RLTK::CG::DoubleType, {new_then_bb => then_val, new_else_bb => else_val}, 'iftmp' }
+			phi_inst = build(merge_bb) { phi RCGTK::DoubleType, {new_then_bb => then_val, new_else_bb => else_val}, 'iftmp' }
 
 			build(start_bb) { cond cond_val, then_bb, else_bb }
 
@@ -117,14 +117,14 @@ module Kazoo
 		end
 
 		on For do |node|
-			ph_bb		= current_block
-			fun			= ph_bb.parent
-			loop_cond_bb	= fun.blocks.append('loop_cond')
+			ph_bb        = current_block
+			fun          = ph_bb.parent
+			loop_cond_bb = fun.blocks.append('loop_cond')
 
 			init_val = visit node.init
 			br loop_cond_bb
 
-			var = build(loop_cond_bb) { phi RLTK::CG::DoubleType, {ph_bb => init_val}, node.var }
+			var = build(loop_cond_bb) { phi RCGTK::DoubleType, {ph_bb => init_val}, node.var }
 
 			old_var = @st[node.var]
 			@st[node.var] = var
@@ -178,7 +178,7 @@ module Kazoo
 					raise "Redefinition of function #{node.name} with different number of arguments."
 				end
 			else
-				fun = @module.functions.add(node.name, RLTK::CG::DoubleType, Array.new(node.arg_names.length, RLTK::CG::DoubleType))
+				fun = @module.functions.add(node.name, RCGTK::DoubleType, Array.new(node.arg_names.length, RCGTK::DoubleType))
 			end
 
 			# Name each of the function paramaters.

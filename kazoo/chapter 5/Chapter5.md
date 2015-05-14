@@ -2,7 +2,7 @@
 
 In the previous chapters we described the implementation of the lexer, parser, and AST for our simple language, Kazoo, and added support for generating LLVM IR for it.  This chapter describes two new techniques: adding optimizer support to your language, and adding JIT compiler support. These additions will demonstrate how to get nice, efficient code for the Kazoo language.
 
-The old version of Chapter 5 can be found [here](file.Chapter5-old.html).
+The old version of Chapter 5 can be found [here]((https://github.com/chriswailes/compiler-examples/blob/master/kazoo/chapter%205/Chapter5-old.md).
 
 ## LLVM Optimization Passes
 
@@ -12,29 +12,29 @@ As a concrete example, LLVM supports both "whole module" passes, which look acro
 
 For Kazoo, we are currently generating functions on the fly, one at a time, as the user types them in.  We aren't shooting for the ultimate optimization experience in this setting, but we also want to catch the easy and quick stuff where possible.  As such, we will choose to run a few per-function optimizations as the user types the function in.  If we wanted to make a "static Kazoo compiler", we would use exactly the code we have now, except that we would defer running the optimizer until the entire file has been parsed.
 
-In order to get per-function optimizations going, we will use a {RLTK::CG::FunctionPassManager FunctionPassManager} to hold and organize the LLVM optimizations that we want to run.  We can now add a set of optimizations to run.  We will be adding the manager to our JIT class's initialization method like so:
+In order to get per-function optimizations going, we will use a {RCGTK::FunctionPassManager FunctionPassManager} to hold and organize the LLVM optimizations that we want to run.  We can now add a set of optimizations to run.  We will be adding the manager to our JIT class's initialization method like so:
 
 ```Ruby
 def initialize
   super
 
   # IR building objects.
-  @module = RLTK::CG::Module.new('Kazoo JIT')
+  @module = RCGTK::Module.new('Kazoo JIT')
   @st     = Hash.new
 
   # Execution Engine
-  @engine = RLTK::CG::JITCompiler.new(@module)
+  @engine = RCGTK::JITCompiler.new(@module)
 
   # Add passes to the Function Pass Manager.
   @module.fpm.add(:InstCombine, :Reassociate, :GVN, :CFGSimplify)
 end
 ```
 
-Each {RLTK::CG::ExecutionEngine} provides both a PassManager and FunctionPassManager object when they are requested, and handles their initialization.  Once our FunctionPassManager is set up, we use the {RLTK::CG::PassManager#add add} method to add a bunch of LLVM passes.  The `@engine` variable is related to the JIT, which we will get to in the next section.
+Each {RCGTK::ExecutionEngine} provides both a PassManager and FunctionPassManager object when they are requested, and handles their initialization.  Once our FunctionPassManager is set up, we use the {RCGTK::PassManager#add add} method to add a bunch of LLVM passes.  The `@engine` variable is related to the JIT, which we will get to in the next section.
 
 In this case, we choose to add four optimization passes.  The passes we chose here are a pretty standard set of "cleanup" optimizations that are useful for a wide variety of code.  I won't delve into what they do but, believe me, they are a good starting place :).
 
-Once the {RLTK::CG::FunctionPassManager} is set up we need to make use of it.  We do this by adding an `optimize` method to our JIT class that we can call on functions returned by the `add` method:
+Once the {RCGTK::FunctionPassManager} is set up we need to make use of it.  We do this by adding an `optimize` method to our JIT class that we can call on functions returned by the `add` method:
 
 ```Ruby
 def optimize(fun)
@@ -85,12 +85,12 @@ In this section, we'll add JIT compiler support to our interpreter.  The basic i
 We've already taken steps toward adding JIT compilation support.  If you look at the section above that added the function pass manager you'll see the following line:
 
 ```Ruby
-@engine = RLTK::CG::JITCompiler.new(@module)
+@engine = RCGTK::JITCompiler.new(@module)
 ```
 
 This creates an abstract "Execution Engine" which can be either a JIT compiler or the LLVM interpreter.  LLVM will automatically pick a JIT compiler for you if one is available for your platform, otherwise it will fall back to the interpreter.
 
-Once the {RLTK::CG::JITCompiler} is created the JIT is ready to be used.  There are a variety of APIs that are useful, but the simplest one is the {RLTK::CG::ExecutionEngine#run\_function run\_function} function.  This method JIT compiles the specified LLVM Function and returns a function pointer to the generated machine code.  In our case, this means that we can change the driver code to look like this:
+Once the {RCGTK::JITCompiler} is created the JIT is ready to be used.  There are a variety of APIs that are useful, but the simplest one is the {RCGTK::ExecutionEngine#run\_function run\_function} function.  This method JIT compiles the specified LLVM Function and returns a function pointer to the generated machine code.  In our case, this means that we can change the driver code to look like this:
 
 ```Ruby
 ast = Kazoo::Parser::parse(Kazoo::Lexer::lex(line))
@@ -103,7 +103,7 @@ puts "After optimization:"
 jit.optimize(ir).dump
 
 if ast.is_a?(Kazoo::Expression)
-  puts "=> #{jit.execute(ir).to_f(RLTK::CG::DoubleType)}"
+  puts "=> #{jit.execute(ir).to_f(RCGTK::DoubleType)}"
 end
 ```
 
@@ -145,7 +145,7 @@ entry:
 => 24.0
 ```
 
-This illustrates that we can now call user code, but there is something a bit subtle going on here.  Note that we only invoke the JIT on the anonymous functions that calls `testfunc`, but we never invoked it on `testfunc` itself.  What actually happened here is that the JIT scanned for all non-JIT'd functions transitively called from the anonymous function and compiled all of them before returning from {RLTK::CG::ExecutionEngine#run_function}.
+This illustrates that we can now call user code, but there is something a bit subtle going on here.  Note that we only invoke the JIT on the anonymous functions that calls `testfunc`, but we never invoked it on `testfunc` itself.  What actually happened here is that the JIT scanned for all non-JIT'd functions transitively called from the anonymous function and compiled all of them before returning from {RCGTK::ExecutionEngine#run_function}.
 
 The JIT provides a number of other more advanced interfaces for things like freeing allocated machine code, rejit'ing functions to update them, etc. However, even with this simple code, we get some surprisingly powerful capabilities - check this out:
 
@@ -223,9 +223,9 @@ double putchard(double x) {
 To load this library (`libkazoo.so`) and inform LLVM about it we'll add the following line to our driver program:
 
 ```
-RLTK::CG::Support.load_library('./libkazoo.so')
+RCGTK::Support.load_library('./libkazoo.so')
 ```
 
 Now we can produce simple output to the console by using things like: "`extern putchard(x); putchard(120);`", which prints a lowercase 'x' on the console (120 is the ASCII code for 'x').  Similar code could be used to implement file I/O, console input, and many other capabilities in Kazoo.
 
-This completes the JIT and optimizer chapter of the Kazoo tutorial. At this point, we can compile a non-Turing-complete programming language, optimize and JIT compile it in a user-driven way.  In the [next chapter](file.Chapter6.html) we'll look into extending the language with control flow constructs, tackling some interesting LLVM IR issues along the way.  The full code listing for this chapter can be found in the "`examples/kazoo/chapter 5`" directory.
+This completes the JIT and optimizer chapter of the Kazoo tutorial. At this point, we can compile a non-Turing-complete programming language, optimize and JIT compile it in a user-driven way.  In the [next chapter](https://github.com/chriswailes/compiler-examples/blob/master/kazoo/chapter%206/Chapter6.md) we'll look into extending the language with control flow constructs, tackling some interesting LLVM IR issues along the way.  The full code listing for this chapter can be found in the "`kazoo/chapter 5`" directory.

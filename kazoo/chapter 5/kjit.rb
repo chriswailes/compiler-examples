@@ -1,15 +1,15 @@
-# Author:		Chris Wailes <chris.wailes@gmail.com>
-# Project: 	Ruby Language Toolkit
-# Date:		2011/05/11
-# Description:	This file sets up a JITing execution engine for Kazoo.
+# Author:      Chris Wailes <chris.wailes@gmail.com>
+# Project:     Compiler Examples
+# Date:        2011/05/11
+# Description: This file sets up a JITing execution engine for Kazoo.
 
 # RLTK Files
-require 'rltk/cg/llvm'
-require 'rltk/cg/module'
-require 'rltk/cg/execution_engine'
+require 'rcgtk/llvm'
+require 'rcgtk/module'
+require 'rcgtk/execution_engine'
 
 # Inform LLVM that we will be targeting an x86 architecture.
-RLTK::CG::LLVM.init(:X86)
+RCGTK::LLVM.init(:X86)
 
 module Kazoo
 	class JIT
@@ -17,12 +17,12 @@ module Kazoo
 
 		def initialize
 			# IR building objects.
-			@module	= RLTK::CG::Module.new('Kazoo JIT')
-			@builder	= RLTK::CG::Builder.new
-			@st		= Hash.new
+			@module  = RCGTK::Module.new('Kazoo JIT')
+			@builder = RCGTK::Builder.new
+			@st      = Hash.new
 
 			# Execution Engine
-			@engine = RLTK::CG::JITCompiler.new(@module)
+			@engine = RCGTK::JITCompiler.new(@module)
 
 			# Add passes to the Function Pass Manager.
 			@module.fpm.add(:InstCombine, :Reassociate, :GVN, :CFGSimplify)
@@ -31,8 +31,8 @@ module Kazoo
 		def add(ast)
 			case ast
 			when Expression	then translate_function(Function.new(Prototype.new('', []), ast))
-			when Function		then translate_function(ast)
-			when Prototype		then translate_prototype(ast)
+			when Function   then translate_function(ast)
+			when Prototype  then translate_prototype(ast)
 			else raise 'Attempting to add an unhandled node type to the JIT.'
 			end
 		end
@@ -68,7 +68,7 @@ module Kazoo
 
 				when LT
 					cond = @builder.fcmp(:ult, left, right, 'cmptmp')
-					@builder.ui2fp(cond, RLTK::CG::DoubleType, 'booltmp')
+					@builder.ui2fp(cond, RCGTK::DoubleType, 'booltmp')
 				end
 
 			when Call
@@ -93,7 +93,7 @@ module Kazoo
 				end
 
 			when Number
-				RLTK::CG::Double.new(node.value)
+				RCGTK::Double.new(node.value)
 
 			else
 				raise 'Unhandled expression type encountered.'
@@ -126,7 +126,7 @@ module Kazoo
 					raise "Redefinition of function #{node.name} with different number of arguments."
 				end
 			else
-				fun = @module.functions.add(node.name, RLTK::CG::DoubleType, Array.new(node.arg_names.length, RLTK::CG::DoubleType))
+				fun = @module.functions.add(node.name, RCGTK::DoubleType, Array.new(node.arg_names.length, RCGTK::DoubleType))
 			end
 
 			# Name each of the function paramaters.

@@ -1,32 +1,32 @@
-# Author:		Chris Wailes <chris.wailes@gmail.com>
-# Project: 	Ruby Language Toolkit
-# Date:		2011/05/11
-# Description:	This file sets up a JITing execution engine for Kazoo.
+# Author:      Chris Wailes <chris.wailes@gmail.com>
+# Project:     Compiler Examples
+# Date:        2011/05/11
+# Description: This file sets up a JITing execution engine for Kazoo.
 
 # RLTK Files
-require 'rltk/cg/llvm'
-require 'rltk/cg/module'
-require 'rltk/cg/execution_engine'
-require 'rltk/cg/value'
+require 'rcgtk/llvm'
+require 'rcgtk/module'
+require 'rcgtk/execution_engine'
+require 'rcgtk/value'
 
 # Inform LLVM that we will be targeting an x86 architecture.
-RLTK::CG::LLVM.init(:X86)
+RCGTK::LLVM.init(:X86)
 
 module Kazoo
 
-	ZERO = RLTK::CG::Double.new(0.0)
+	ZERO = RCGTK::Double.new(0.0)
 
 	class JIT
 		attr_reader :module
 
 		def initialize
 			# IR building objects.
-			@module	= RLTK::CG::Module.new('Kazoo JIT')
-			@builder	= RLTK::CG::Builder.new
-			@st		= Hash.new
+			@module  = RCGTK::Module.new('Kazoo JIT')
+			@builder = RCGTK::Builder.new
+			@st      = Hash.new
 
 			# Execution Engine
-			@engine = RLTK::CG::JITCompiler.new(@module)
+			@engine = RCGTK::JITCompiler.new(@module)
 
 			# Add passes to the Function Pass Manager.
 			@module.fpm.add(:InstCombine, :Reassociate, :GVN, :CFGSimplify)
@@ -34,9 +34,9 @@ module Kazoo
 
 		def add(ast)
 			case ast
-			when Expression	then translate_function(Function.new(Prototype.new('', []), ast))
-			when Function		then translate_function(ast)
-			when Prototype		then translate_prototype(ast)
+			when Expression then translate_function(Function.new(Prototype.new('', []), ast))
+			when Function   then translate_function(ast)
+			when Prototype  then translate_prototype(ast)
 			else raise 'Attempting to add an unhandled node type to the JIT.'
 			end
 		end
@@ -72,7 +72,7 @@ module Kazoo
 
 				when LT
 					cond = @builder.fcmp(:ult, left, right, 'cmptmp')
-					@builder.ui2fp(cond, RLTK::CG::DoubleType, 'booltmp')
+					@builder.ui2fp(cond, RCGTK::DoubleType, 'booltmp')
 				end
 
 			when Call
@@ -90,15 +90,15 @@ module Kazoo
 				@builder.call(callee, *args.push('calltmp'))
 
 			when For
-				ph_bb		= @builder.current_block
-				fun			= ph_bb.parent
-				loop_cond_bb	= fun.blocks.append('loop_cond')
+				ph_bb        = @builder.current_block
+				fun          = ph_bb.parent
+				loop_cond_bb = fun.blocks.append('loop_cond')
 
 				init_val = translate_expression(node.init)
 				@builder.br(loop_cond_bb)
 
 				@builder.position_at_end(loop_cond_bb)
-				var = @builder.phi(RLTK::CG::DoubleType, {ph_bb => init_val}, node.var)
+				var = @builder.phi(RCGTK::DoubleType, {ph_bb => init_val}, node.var)
 
 				old_var = @st[node.var]
 				@st[node.var] = var
@@ -135,8 +135,8 @@ module Kazoo
 				cond_value = translate_expression(node.cond)
 				cond_value = @builder.fcmp(:one, cond_value, ZERO, 'ifcond')
 
-				start_bb	= @builder.current_block
-				fun		= start_bb.parent
+				start_bb = @builder.current_block
+				fun      = start_bb.parent
 
 				then_bb = fun.blocks.append('then')
 				@builder.position_at_end(then_bb)
@@ -150,7 +150,7 @@ module Kazoo
 
 				merge_bb = fun.blocks.append('merge')
 				@builder.position_at_end(merge_bb)
-				phi = @builder.phi(RLTK::CG::DoubleType, {new_then_bb => then_value, new_else_bb => else_value}, 'iftmp')
+				phi = @builder.phi(RCGTK::DoubleType, {new_then_bb => then_value, new_else_bb => else_value}, 'iftmp')
 
 				start_bb.build { cond(cond_value, then_bb, else_bb) }
 
@@ -167,7 +167,7 @@ module Kazoo
 				end
 
 			when Number
-				RLTK::CG::Double.new(node.value)
+				RCGTK::Double.new(node.value)
 
 			else
 				raise 'Unhandled expression type encountered.'
@@ -199,7 +199,7 @@ module Kazoo
 					raise "Redefinition of function #{node.name} with different number of arguments."
 				end
 			else
-				fun = @module.functions.add(node.name, RLTK::CG::DoubleType, Array.new(node.arg_names.length, RLTK::CG::DoubleType))
+				fun = @module.functions.add(node.name, RCGTK::DoubleType, Array.new(node.arg_names.length, RCGTK::DoubleType))
 			end
 
 			# Name each of the function paramaters.

@@ -193,4 +193,4 @@ Once everything is defined inside the JIT we can print some Mandelbrot sets:
 
 At this point, you may be starting to realize that Kazoo is a real and powerful language.  It may not be self-similar, but it can be used to plot things that are!
 
-In the [next chapter](file.Chapter8.html), we will describe how you can add variable mutation to Kazoo without building SSA in your front-end. The full code listing for this chapter can be found in the "`examples/kazoo/chapter 7`" directory.
+In the [next chapter](https://github.com/chriswailes/compiler-examples/blob/master/kazoo/chapter%208/Chapter8-old.md), we will describe how you can add variable mutation to Kazoo without building SSA in your front-end. The full code listing for this chapter can be found in the "`kazoo/chapter 7`" directory.

@@ -1,9 +1,9 @@
 #!/usr/bin/ruby
 
-# Author:		Chris Wailes <chris.wailes@gmail.com>
-# Project: 	Ruby Language Toolkit
-# Date:		2011/05/09
-# Description:	This file is the driver for the Kazoo tutorial.
+# Author:      Chris Wailes <chris.wailes@gmail.com>
+# Project:     Compiler Examples
+# Date:        2011/05/09
+# Description: This file is the driver for the Kazoo tutorial.
 
 # Tutorial Files
 require './klexer'

@@ -168,7 +168,7 @@ The first functionality change we want to make is to variable references.  In ou
 	when Variable
 		if @st.key?(node.name)
 			@builder.load(@st[node.name], node.name)
-		
+
 		else
 			raise Exception, "Unitialized variable '#{node.name}'."
 		end
@@ -178,44 +178,44 @@ As you can see, this is pretty straightforward.  Now we need to update the thing
 	ph_bb			= @builder.current_block
 	fun				= ph_bb.parent
 	loop_cond_bb	= fun.blocks.append('loop_cond')
-	
-	alloca		= @builder.alloca(RLTK::CG::DoubleType, node.var)
+
+	alloca		= @builder.alloca(RCGTK::DoubleType, node.var)
 	init_val	= translate_expression(node.init)
 	@builder.store(init_val, alloca)
-	
+
 	old_var = @st[node.var]
 	@st[node.var] = alloca
-	
+
 	@builder.br(loop_cond_bb)
-	
+
 	# Translate the conditional code.
 	@builder.position_at_end(loop_cond_bb)
 	end_cond = translate_expression(node.cond)
 	end_cond = @builder.fcmp(:one, end_cond, ZERO, 'loopcond')
-	
+
 	loop_bb0 = fun.blocks.append('loop')
 	@builder.position_at_end(loop_bb0)
-	
+
 	translate_expression(node.body)
-	
+
 	loop_bb1 = @builder.current_block
-	
+
 	step_val	= translate_expression(node.step)
 	var			= @builder.load(alloca, node.var)
 	next_var	= @builder.fadd(var, step_val, 'nextvar')
 	@builder.store(next_var, alloca)
-	
+
 	@builder.br(loop_cond_bb)
-	
+
 	# Add the conditional branch to the loop_cond_bb.
 	after_bb = fun.blocks.append('afterloop')
-	
+
 	loop_cond_bb.build { cond(end_cond, loop_bb0, after_bb) }
-	
+
 	@builder.position_at_end(after_bb)
-	
+
 	@st[node.var] = old_var
-	
+
 	ZERO
 
 This code is largely identical to the code from the previous chapters.  Notice, however, the new store instruction for the initial value, the removal of the Phi instruction, and the load and store instructions around the `next_var`.
@@ -241,10 +241,10 @@ Instead of adding entries to the symbol table in the `translate_prototype` metho
 	# and set its value as the return value.
 	fun.blocks.append('entry', nil, @builder, self, @st) do |jit, st|
 		fun.params.each do |param|
-			st[param.name] = alloca(RLTK::CG::DoubleType, param.name)
+			st[param.name] = alloca(RCGTK::DoubleType, param.name)
 			store(param, st[param.name])
 		end
-		
+
 		ret jit.translate_expression(node.body)
 	end
 
@@ -340,7 +340,7 @@ With our current framework adding a new assignment operator is fairly simple.  T
 
 	class Assign < Expression
 		value :name, String
-	
+
 		child :right, Expression
 	end
 
@@ -352,14 +352,14 @@ The last thing to do is to add is a new clause to the `translate_expression` met
 
 	when Assign
 		right = translate_expression(node.right)
-		
+
 		alloca =
 		if @st.has_key?(node.name)
 			@st[node.name]
 		else
-			@st[node.name] = @builder.alloca(RLTK::CG::DoubleType, node.name)
+			@st[node.name] = @builder.alloca(RCGTK::DoubleType, node.name)
 		end
-		
+
 		@builder.store(right, alloca)
 
 If a memory location with the name of the left-hand side isn't present in the symbol table a new alloca instruction is generated and the memory location is inserted into the symbol table.  This allows you to define a variable simply by assigning to it.
@@ -377,4 +377,4 @@ When run, this example prints "123" and then "4", showing that we did actually m
 
 With this, we completed what we set out to do.  Our nice iterative fib example from the intro compiles and runs just fine.  The mem2reg pass optimizes all of our stack variables into SSA registers, inserting Phi nodes where needed, and our front-end remains simple: no "iterated dominance frontier" computation anywhere in sight.
 
-This concludes the Kazoo tutorial.  We now have a Turing complete language and a JIT compiler for it.  The full code listing for this chapter can be found in the "`examples/kazoo/chapter 8`" directory.
+This concludes the Kazoo tutorial.  We now have a Turing complete language and a JIT compiler for it.  The full code listing for this chapter can be found in the "`kazoo/chapter 8`" directory.

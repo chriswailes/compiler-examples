@@ -1,9 +1,9 @@
 #!/usr/bin/ruby
 
-# Author:		Chris Wailes <chris.wailes@gmail.com>
-# Project: 	Ruby Language Toolkit
-# Date:		2011/05/09
-# Description:	This file is the driver for the Kazoo tutorial.
+# Author:      Chris Wailes <chris.wailes@gmail.com>
+# Project:     Compiler Examples
+# Date:        2011/05/09
+# Description: This file is the driver for the Kazoo tutorial.
 
 # Tutorial Files
 require './klexer'
@@ -12,7 +12,7 @@ require './kcontractor'
 #require './kjit'
 
 # Load the Kazoo C library.
-RLTK::CG::Support.load_library('./libkazoo.so')
+RCGTK::Support.load_library('./libkazoo.so')
 
 # Create our JIT compiler.
 jit = Kazoo::Contractor.new
@@ -45,7 +45,7 @@ loop do
 		jit.optimize(ir).dump
 
 		if ast.is_a?(Kazoo::Expression)
-			puts "=> #{jit.execute(ir).to_f(RLTK::CG::DoubleType)}"
+			puts "=> #{jit.execute(ir).to_f(RCGTK::DoubleType)}"
 		end
 
 	rescue Exception => e
