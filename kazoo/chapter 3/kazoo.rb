@@ -6,8 +6,11 @@
 # Description: This file is the driver for the Kazoo tutorial.
 
 # Tutorial Files
-require './klexer'
-require './kparser'
+require File.join(File.dirname(__FILE__), 'klexer')
+require File.join(File.dirname(__FILE__), 'kparser')
+
+#require './klexer'
+#require './kparser'
 
 loop do
 	print('Kazoo > ')

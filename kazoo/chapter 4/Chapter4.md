@@ -195,7 +195,7 @@ Kazoo > 4 + 5;
 
 define double @0() {
 entry:
-	ret double 9.000000e+00
+  ret double 9.000000e+00
 }
 ```
 

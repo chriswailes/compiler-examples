@@ -6,10 +6,10 @@
 # Description: This file is the driver for the Kazoo tutorial.
 
 # Tutorial Files
-require './klexer'
-require './kparser'
-require './kcontractor'
-#require './kjit'
+require File.join(File.dirname(__FILE__), 'klexer')
+require File.join(File.dirname(__FILE__), 'kparser')
+require File.join(File.dirname(__FILE__), 'kcontractor')
+#require File.join(File.dirname(__FILE__), 'kjit')
 
 # Create our JIT compiler.
 jit = Kazoo::Contractor.new

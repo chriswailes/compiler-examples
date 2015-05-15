@@ -7,7 +7,7 @@
 require 'rltk/parser'
 
 # Tutorial Files
-require './kast'
+require File.join(File.dirname(__FILE__), 'kast')
 
 module Kazoo
 	class Parser < RLTK::Parser

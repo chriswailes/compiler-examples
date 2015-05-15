@@ -2,7 +2,7 @@
 
 In the previous chapters we described the implementation of the lexer, parser, and AST for our simple language, Kazoo, and added support for generating LLVM IR for it.  This chapter describes two new techniques: adding optimizer support to your language, and adding JIT compiler support. These additions will demonstrate how to get nice, efficient code for the Kazoo language.
 
-The old version of Chapter 5 can be found [here]((https://github.com/chriswailes/compiler-examples/blob/master/kazoo/chapter%205/Chapter5-old.md).
+The old version of Chapter 5 can be found [here](https://github.com/chriswailes/compiler-examples/blob/master/kazoo/chapter%205/Chapter5-old.md).
 
 ## LLVM Optimization Passes
 
