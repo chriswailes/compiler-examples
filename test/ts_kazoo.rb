@@ -11,6 +11,4 @@
 require 'tc_chapter_3'
 require 'tc_chapter_4'
 require 'tc_chapter_5'
-#require 'tc_chapter_6'
-#require 'tc_chapter_7'
-#require 'tc_chapter_8'
+require 'tc_chapter_6'

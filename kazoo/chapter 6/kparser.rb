@@ -57,6 +57,6 @@ module Kazoo6
 
 		list(:arg_defs, :IDENT, :COMMA)
 
-		finalize use: 'kparser.tbl'
+		finalize use: File.join(File.dirname(__FILE__), 'kparser.tbl')
 	end
 end

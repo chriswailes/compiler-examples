@@ -231,13 +231,13 @@ entry:
   br label %loop_cond
 
 loop_cond:                                        ; preds = %loop, %entry
-  %i = phi double [ 1.000000e+00, %entry ], [ %nextvar, %loop ]
+  %i = phi double [ 0.000000e+00, %entry ], [ %nextvar, %loop ]
   %cmptmp = fcmp ult double %i, %n
   br i1 %cmptmp, label %loop, label %afterloop
 
 loop:                                             ; preds = %loop_cond
   %calltmp = call double @putchard(double 4.200000e+01)
-  %nextvar = fadd double %i, 1.000000e+00
+  %nextvar = fadd double 1.000000e+00, %i
   br label %loop_cond
 
 afterloop:                                        ; preds = %loop_cond

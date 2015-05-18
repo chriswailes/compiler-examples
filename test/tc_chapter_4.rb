@@ -84,8 +84,8 @@ entry:
 	end
 
 	def test_parser
-		assert_kind_of(Kazoo4::Expression, Kazoo4::Parser.parse(Kazoo4::Lexer.lex('40 + 2;')))
-		assert_kind_of(Kazoo4::Prototype,  Kazoo4::Parser.parse(Kazoo4::Lexer.lex('def foo();')))
-		assert_kind_of(Kazoo4::Function,   Kazoo4::Parser.parse(Kazoo4::Lexer.lex('def foo(x) x + 42;')))
+		assert_kind_of(Kazoo4::Expression, Kazoo4::Parser::parse(Kazoo4::Lexer::lex('40 + 2;')))
+		assert_kind_of(Kazoo4::Prototype,  Kazoo4::Parser::parse(Kazoo4::Lexer::lex('def foo();')))
+		assert_kind_of(Kazoo4::Function,   Kazoo4::Parser::parse(Kazoo4::Lexer::lex('def foo(x) x + 42;')))
 	end
 end

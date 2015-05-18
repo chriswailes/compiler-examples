@@ -17,8 +17,6 @@ require File.join(File.dirname(__FILE__), '../kazoo/chapter 5/kcontractor')
 require File.join(File.dirname(__FILE__), '../kazoo/chapter 5/klexer')
 require File.join(File.dirname(__FILE__), '../kazoo/chapter 5/kparser')
 
-require 'pp'
-
 class Chapter5Tester < Minitest::Test
 
 	AST0_IR = %q(
@@ -61,11 +59,11 @@ entry:
 		jit = Kazoo5::Contractor.new
 
 		defs.each do |d|
-			ast = Kazoo5::Parser.parse(Kazoo5::Lexer.lex(d))
+			ast = Kazoo5::Parser::parse(Kazoo5::Lexer::lex(d))
 			jit.add(ast)
 		end
 
-		ast = Kazoo5::Parser.parse(Kazoo5::Lexer.lex(expr))
+		ast = Kazoo5::Parser::parse(Kazoo5::Lexer::lex(expr))
 
 		assert_kind_of(Kazoo5::Expression, ast)
 
@@ -103,8 +101,8 @@ entry:
 	end
 
 	def test_parser
-		assert_kind_of(Kazoo5::Expression, Kazoo5::Parser.parse(Kazoo5::Lexer.lex('40 + 2;')))
-		assert_kind_of(Kazoo5::Prototype,  Kazoo5::Parser.parse(Kazoo5::Lexer.lex('def foo();')))
-		assert_kind_of(Kazoo5::Function,   Kazoo5::Parser.parse(Kazoo5::Lexer.lex('def foo(x) x + 42;')))
+		assert_kind_of(Kazoo5::Expression, Kazoo5::Parser::parse(Kazoo5::Lexer::lex('40 + 2;')))
+		assert_kind_of(Kazoo5::Prototype,  Kazoo5::Parser::parse(Kazoo5::Lexer::lex('def foo();')))
+		assert_kind_of(Kazoo5::Function,   Kazoo5::Parser::parse(Kazoo5::Lexer::lex('def foo(x) x + 42;')))
 	end
 end
