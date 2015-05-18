@@ -6,17 +6,17 @@
 # Description: This file is the driver for the Kazoo tutorial.
 
 # Tutorial Files
-require './klexer'
-require './kparser'
-require './kcontractor'
-#require './kjit'
+require File.join(File.dirname(__FILE__), 'klexer')
+require File.join(File.dirname(__FILE__), 'kparser')
+require File.join(File.dirname(__FILE__), 'kcontractor')
+#require File.join(File.dirname(__FILE__), 'kjit')
 
 # Load the Kazoo library.
 RCGTK::Support.load_library('./libkazoo.so')
 
 # Create our JIT compiler.
-jit = Kazoo::Contractor.new
-#jit = Kazoo::JIT.new
+jit = Kazoo8::Contractor.new
+#jit = Kazoo8::JIT.new
 
 loop do
 	print('Kazoo > ')
@@ -35,12 +35,12 @@ loop do
 	end
 
 	begin
-		ast = Kazoo::Parser.parse(Kazoo::Lexer.lex(line))
+		ast = Kazoo8::Parser.parse(Kazoo8::Lexer.lex(line))
 		ir  = jit.add(ast)
 
 		jit.optimize(ir).dump
 
-		if ast.is_a?(Kazoo::Expression)
+		if ast.is_a?(Kazoo8::Expression)
 			puts "=> #{jit.execute(ir).to_f(RCGTK::DoubleType)}"
 		end
 

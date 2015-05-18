@@ -24,12 +24,12 @@ loop do
 	break if line == 'quit;' or line == 'exit;'
 
 	begin
-		ast = Kazoo::Parser.parse(Kazoo::Lexer.lex(line))
+		ast = Kazoo3::Parser.parse(Kazoo3::Lexer.lex(line))
 
 		case ast
-		when Kazoo::Expression	then puts 'Parsed an expression.'
-		when Kazoo::Function	then puts 'Parsed a function definition.'
-		when Kazoo::Prototype	then puts 'Parsed a prototype or extern definition.'
+		when Kazoo3::Expression	then puts 'Parsed an expression.'
+		when Kazoo3::Function	then puts 'Parsed a function definition.'
+		when Kazoo3::Prototype	then puts 'Parsed a prototype or extern definition.'
 		end
 
 	rescue RLTK::LexingError, RLTK::NotInLanguage

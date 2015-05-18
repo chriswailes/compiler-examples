@@ -21,8 +21,8 @@ class Chapter3Tester < Minitest::Test
 	end
 
 	def test_parser
-		assert_kind_of(Kazoo::Expression, Kazoo::Parser.parse(Kazoo::Lexer.lex('40 + 2;')))
-		assert_kind_of(Kazoo::Prototype,  Kazoo::Parser.parse(Kazoo::Lexer.lex('def foo();')))
-		assert_kind_of(Kazoo::Function,   Kazoo::Parser.parse(Kazoo::Lexer.lex('def foo(x) x + 42;')))
+		assert_kind_of(Kazoo3::Expression, Kazoo3::Parser.parse(Kazoo3::Lexer.lex('40 + 2;')))
+		assert_kind_of(Kazoo3::Prototype,  Kazoo3::Parser.parse(Kazoo3::Lexer.lex('def foo();')))
+		assert_kind_of(Kazoo3::Function,   Kazoo3::Parser.parse(Kazoo3::Lexer.lex('def foo(x) x + 42;')))
 	end
 end

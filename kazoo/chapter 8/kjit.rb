@@ -12,7 +12,7 @@ require 'rcgtk/value'
 # Inform LLVM that we will be targeting an x86 architecture.
 RCGTK::LLVM.init(:X86)
 
-module Kazoo
+module Kazoo8
 
 	ZERO = RCGTK::Double.new(0.0)
 

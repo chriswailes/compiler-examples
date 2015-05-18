@@ -13,7 +13,7 @@ require 'rcgtk/contractor'
 # Inform LLVM that we will be targeting an x86 architecture.
 RCGTK::LLVM.init(:X86)
 
-module Kazoo
+module Kazoo5
 	class Contractor < RCGTK::Contractor
 		attr_reader :module
 

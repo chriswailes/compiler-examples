@@ -9,7 +9,7 @@ require 'rltk/parser'
 # Tutorial Files
 require File.join(File.dirname(__FILE__), 'kast')
 
-module Kazoo
+module Kazoo5
 	class Parser < RLTK::Parser
 
 		left :PLUS, :SUB

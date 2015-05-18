@@ -15,8 +15,8 @@ require File.join(File.dirname(__FILE__), 'kcontractor')
 RCGTK::Support.load_library('./libkazoo.so')
 
 # Create our JIT compiler.
-jit = Kazoo::Contractor.new
-#jit = Kazoo::JIT.new
+jit = Kazoo5::Contractor.new
+#jit = Kazoo5::JIT.new
 
 loop do
 	print('Kazoo > ')
@@ -35,7 +35,7 @@ loop do
 	end
 
 	begin
-		ast = Kazoo::Parser.parse(Kazoo::Lexer.lex(line))
+		ast = Kazoo5::Parser.parse(Kazoo5::Lexer.lex(line))
 		ir  = jit.add(ast)
 
 		puts "Before optimization:"
@@ -44,7 +44,7 @@ loop do
 		puts "After optimization:"
 		jit.optimize(ir).dump
 
-		if ast.is_a?(Kazoo::Expression)
+		if ast.is_a?(Kazoo5::Expression)
 			puts "=> #{jit.execute(ir).to_f(RCGTK::DoubleType)}"
 		end
 

@@ -64,28 +64,28 @@ entry:
 	end
 
 	def test_ir_gen
-		jit = Kazoo::Contractor.new
+		jit = Kazoo4::Contractor.new
 
-		ast0 = Kazoo::Parser::parse(Kazoo::Lexer::lex('4 + 5;'))
+		ast0 = Kazoo4::Parser::parse(Kazoo4::Lexer::lex('4 + 5;'))
 		assert_equal(AST0_IR, jit.add(ast0).print)
 
-		ast1 = Kazoo::Parser::parse(Kazoo::Lexer::lex('def foo(a,b) a*a + 2*a*b + b*b;'))
+		ast1 = Kazoo4::Parser::parse(Kazoo4::Lexer::lex('def foo(a,b) a*a + 2*a*b + b*b;'))
 		assert_equal(AST1_IR, jit.add(ast1).print)
 
-		ast2 = Kazoo::Parser::parse(Kazoo::Lexer::lex('def bar(a) foo(a, 4.0) + bar(31337);'))
+		ast2 = Kazoo4::Parser::parse(Kazoo4::Lexer::lex('def bar(a) foo(a, 4.0) + bar(31337);'))
 		assert_equal(AST2_IR, jit.add(ast2).print)
 
-		ast3 = Kazoo::Parser::parse(Kazoo::Lexer::lex('extern cos(x);'))
+		ast3 = Kazoo4::Parser::parse(Kazoo4::Lexer::lex('extern cos(x);'))
 		assert_equal(AST3_IR, jit.add(ast3).print)
 
-		ast4 = Kazoo::Parser::parse(Kazoo::Lexer::lex('cos(1.234);'))
+		ast4 = Kazoo4::Parser::parse(Kazoo4::Lexer::lex('cos(1.234);'))
 		assert_equal(AST4_IR, jit.add(ast4).print)
 
 	end
 
 	def test_parser
-		assert_kind_of(Kazoo::Expression, Kazoo::Parser.parse(Kazoo::Lexer.lex('40 + 2;')))
-		assert_kind_of(Kazoo::Prototype,  Kazoo::Parser.parse(Kazoo::Lexer.lex('def foo();')))
-		assert_kind_of(Kazoo::Function,   Kazoo::Parser.parse(Kazoo::Lexer.lex('def foo(x) x + 42;')))
+		assert_kind_of(Kazoo4::Expression, Kazoo4::Parser.parse(Kazoo4::Lexer.lex('40 + 2;')))
+		assert_kind_of(Kazoo4::Prototype,  Kazoo4::Parser.parse(Kazoo4::Lexer.lex('def foo();')))
+		assert_kind_of(Kazoo4::Function,   Kazoo4::Parser.parse(Kazoo4::Lexer.lex('def foo(x) x + 42;')))
 	end
 end

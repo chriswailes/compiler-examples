@@ -17,8 +17,7 @@ require 'filigree/request_file'
 request_file('rake/testtask', 'Minitest is not installed.') do
 	Rake::TestTask.new do |t|
 		t.libs << 'test'
-#		t.test_files = FileList['test/ts_kazoo.rb']
-		t.test_files = FileList['test/tc_chapter_5']
+		t.test_files = FileList['test/ts_kazoo.rb']
 	end
 end
 

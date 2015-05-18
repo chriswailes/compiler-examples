@@ -6,7 +6,7 @@
 # RLTK Files
 require 'rltk/lexer'
 
-module Kazoo
+module Kazoo7
 	class Lexer < RLTK::Lexer
 		# Skip whitespace.
 		rule(/\s/)

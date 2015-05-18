@@ -12,8 +12,8 @@ require File.join(File.dirname(__FILE__), 'kcontractor')
 #require File.join(File.dirname(__FILE__), 'kjit')
 
 # Create our JIT compiler.
-jit = Kazoo::Contractor.new
-#jit = Kazoo::JIT.new
+jit = Kazoo4::Contractor.new
+#jit = Kazoo4::JIT.new
 
 loop do
 	print('Kazoo > ')
@@ -32,7 +32,7 @@ loop do
 	end
 
 	begin
-		ast = Kazoo::Parser.parse(Kazoo::Lexer.lex(line))
+		ast = Kazoo4::Parser.parse(Kazoo4::Lexer.lex(line))
 		ir  = jit.add(ast)
 
 		ir.dump

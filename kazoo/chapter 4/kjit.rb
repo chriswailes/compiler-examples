@@ -10,7 +10,7 @@ require 'rcgtk/module'
 # Inform LLVM that we will be targeting an x86 architecture.
 RCGTK::LLVM.init(:X86)
 
-module Kazoo
+module Kazoo4
 	class JIT
 		attr_reader :module
 
@@ -24,8 +24,8 @@ module Kazoo
 		def add(ast)
 			case ast
 			when Expression	then translate_function(Function.new(Prototype.new('', []), ast))
-			when Function		then translate_function(ast)
-			when Prototype		then translate_prototype(ast)
+			when Function   then translate_function(ast)
+			when Prototype  then translate_prototype(ast)
 			else raise 'Attempting to add an unhandled node type to the JIT.'
 			end
 		end

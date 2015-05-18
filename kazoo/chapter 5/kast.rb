@@ -6,7 +6,7 @@
 # RLTK Files
 require 'rltk/ast'
 
-module Kazoo
+module Kazoo5
 
 	class Expression < RLTK::ASTNode; end
 
